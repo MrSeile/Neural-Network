@@ -53,7 +53,7 @@ namespace nn
 				circle.setOrigin(radius, radius);
 				circle.setOutlineThickness(j.bias ? 2.f : 1.f);
 				circle.setOutlineColor(j.bias ? sf::Color::Red : sf::Color::White);
-				sf::Uint8 color = (sf::Uint8)mapd(j.value, nn.GetActivation().range.x, nn.GetActivation().range.y, 0, 255);
+				sf::Uint8 color = j.bias ? 255 : (sf::Uint8)mapd(j.value, j.activation.range.x, j.activation.range.y, 0, 255);
 				circle.setFillColor(sf::Color(color, color, color));
 
 				sf::Vector2f pos;
@@ -96,7 +96,7 @@ namespace nn
 						}
 						else
 						{
-							text.setString(std::to_string(j.error));
+							text.setString(std::to_string(j.value));
 						}
 					}
 

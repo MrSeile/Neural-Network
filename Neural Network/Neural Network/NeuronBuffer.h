@@ -2,6 +2,7 @@
 
 #include "Global.h"
 #include "Neuron.h"
+#include "Activation.h"
 
 namespace nn
 {
@@ -12,7 +13,7 @@ namespace nn
 		const uint m_size;
 
 	public:
-		NeuronBuffer(const uint& size, const uint& index);
+		NeuronBuffer(const uint& size, const uint& index, const nn::Activation& activation);
 		~NeuronBuffer();
 
 		uint size();

@@ -1,6 +1,6 @@
-#include "Neural Network\NeuralNetwork.h"
+/*#include "Neural Network\NeuralNetwork.h"
 #include "Application.h"
-#include <SFML\Graphics.hpp> // Load Images
+#include <SFML\Graphics\Image.hpp> // Load Images
 
 int main()
 {
@@ -105,13 +105,20 @@ int main()
 		[](const double& x)->double { return 1 - pow(x, 2); }
 	);
 
-	nn::NeuralNetwork nn(28 * 28, { 500, 500, 400, 300 }, 10, sigmoid);
+	nn::HiddenLayers hidden;
+	hidden.AddLayer(500, sigmoid);
+	hidden.AddLayer(500, sigmoid);
+	hidden.AddLayer(400, sigmoid);
+	hidden.AddLayer(300, sigmoid);
+
+	nn::NeuralNetwork nn(784, hidden, 10, sigmoid);
+	//nn::NeuralNetwork nn(784, { 500, 500, 400, 300 }, 10, sigmoid);
 	Application* app;
 
 	/////////////////////////
 	// Global variables
 	/////////////////////////
-	double lRate = 0.0003;
+	double lRate = 0.0001;
 
 	bool train = true;
 	bool quit = false;
@@ -273,7 +280,7 @@ int main()
 		app->Init();
 	});
 
-	/*/////////////////////////
+	/////////////////////////
 	// Window loop
 	/////////////////////////
 	std::thread windowThread([&]()
@@ -294,9 +301,9 @@ int main()
 
 			window.display();
 		}
-	});*/
+	});
 
 	trainThread.join();
 	consoleThread.join();
 	//windowThread.join();
-}
+}*/

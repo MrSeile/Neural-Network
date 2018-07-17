@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Global.h"
+#include "Activation.h"
 
 namespace nn
 {
@@ -9,7 +10,9 @@ namespace nn
 	class Neuron
 	{
 	public:
-		Neuron(const uint& x, const uint& y, const bool& bias = false);
+		Neuron(const uint& x, const uint& y, const Activation& activation, const bool& bias = false);
+
+		nn::Activation activation;
 
 		const bool bias;
 

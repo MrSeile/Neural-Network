@@ -145,6 +145,8 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="DrawFunction\DrawFunction.cpp" />
+    <ClCompile Include="Neural Network\Activation.cpp" />
+    <ClCompile Include="Neural Network\HiddenLayers.cpp" />
     <ClCompile Include="Neural Network\NeuralNetwork.cpp" />
     <ClCompile Include="Neural Network\Link.cpp" />
     <ClCompile Include="Neural Network\Neuron.cpp" />
@@ -156,6 +158,8 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Draw Neural Network\DrawNeuralNetwork.h" />
     <ClInclude Include="DrawFunction\DrawFunction.h" />
+    <ClInclude Include="Neural Network\Activation.h" />
+    <ClInclude Include="Neural Network\HiddenLayers.h" />
     <ClInclude Include="Neural Network\Global.h" />
     <ClInclude Include="Neural Network\NeuronBuffer.h" />
     <ClInclude Include="Neural Network\NeuralNetwork.h" />

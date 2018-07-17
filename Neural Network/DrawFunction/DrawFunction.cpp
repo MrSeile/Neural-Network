@@ -60,16 +60,16 @@ void DrawFunction::Draw(sf::RenderWindow& window)
 	{
 		for (float y = 0; y < cells.y; y++)
 		{
-			int index = (x + cells.x * y) * 4;
+			int index = (int)(x + cells.x * y) * 4;
 
 			sf::Vector2f input;
-			input.x = map(x, 0, cells.x, m_inputRange.x, m_inputRange.y);
-			input.y = map(y, 0, cells.y, m_inputRange.x, m_inputRange.y);
+			input.x = map(x, 0, (float)cells.x, m_inputRange.x, m_inputRange.y);
+			input.y = map(y, 0, (float)cells.y, m_inputRange.x, m_inputRange.y);
 
 			sf::Color color;
-			color.r = map(m_func({ input.x, input.y }), m_outputRange.x, m_outputRange.y, 0, 255);
-			color.g = map(m_func({ input.x, input.y }), m_outputRange.x, m_outputRange.y, 0, 255);
-			color.b = map(m_func({ input.x, input.y }), m_outputRange.x, m_outputRange.y, 0, 255);
+			color.r = (sf::Uint8)map(m_func({ input.x, input.y }), m_outputRange.x, m_outputRange.y, 0, 255);
+			color.g = (sf::Uint8)map(m_func({ input.x, input.y }), m_outputRange.x, m_outputRange.y, 0, 255);
+			color.b = (sf::Uint8)map(m_func({ input.x, input.y }), m_outputRange.x, m_outputRange.y, 0, 255);
 
 			m_pixels[index + 0].color = color;
 			m_pixels[index + 1].color = color;

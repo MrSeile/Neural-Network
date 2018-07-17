@@ -1,5 +1,6 @@
-/*#include "Neural Network\NeuralNetwork.h"
+#include "Neural Network\NeuralNetwork.h"
 #include "Draw Neural Network\DrawNeuralNetwork.h"
+#include "DrawFunction\DrawFunction.h"
 #include <SFML\Graphics.hpp>
 
 int main()
@@ -11,12 +12,33 @@ int main()
 		[](const double& x)->double { return x * (1 - x); }
 	);
 
-	nn::NeuralNetwork nn(3, { 5, 5 }, 2, sigmoid);
-	nn.Calculate({ randRange<double>(0, 1), randRange<double>(0, 1) , randRange<double>(0, 1) });
+	nn::Activation hyper(
+		"HyperbolicTangent",
+		{ -1, 1 },
+		[](const double& x)->double { return tanh(x); },
+		[](const double& x)->double { return 1 - pow(x, 2); }
+	);
+
+	nn::HiddenLayers hidden;
+	hidden.AddLayer(5, hyper);
+	hidden.AddLayer(5, sigmoid);
+
+	nn::NeuralNetwork nn(2, hidden, 1, sigmoid);
+
+	DrawFunction df = DrawFunction({ 800, 200 }, { 200, 200 }, { 1, 1 }, { 0, 1 }, { 0, 1 }, [&](const sf::Vector2f& i)->float
+	{
+		return nn.Calculate({ i.x, i.y })[0];
+	});
+
 
 	sf::RenderWindow window(sf::VideoMode(1600, 700), "");
 	sf::Font font;
 	font.loadFromFile("font/font.ttf");
+
+	std::vector<std::vector<double>> i = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+	std::vector<std::vector<double>> o = { { 1 }, { 0 }, { 0 }, { 1 } };
+
+	bool show = false;
 
 	while (window.isOpen())
 	{
@@ -27,10 +49,24 @@ int main()
 			{
 				window.close();
 			}
+			if (e.type == sf::Event::KeyPressed)
+			{
+				if (e.key.code == sf::Keyboard::Return)
+				{
+					show = show ? false : true;
+				}
+			}
 		}
 		window.clear();
 
-		nn::Draw(window, nn, { 100, 300 }, 200, 100, 10, font, false);
+		nn::Draw(window, nn, { 100, 300 }, 200, 100, 10, font, true);
+		if (show)
+		{
+			df.Draw(window);
+		}
+		uint index = (rand() % static_cast<int>(3 + 1));
+
+		nn.Train(i[index], o[index], 0.1);
 
 		window.display();
 	}
@@ -356,4 +392,4 @@ int main()
 
 	consoleThread.join();
 }
-#endif*/
+*/

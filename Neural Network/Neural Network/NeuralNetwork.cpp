@@ -7,30 +7,110 @@ NeuralNetwork::NeuralNetwork(const uint& inputNodes, const std::vector<uint>& hi
 	: inputs(inputNodes)
 	, outputs(outputNodes)
 	, m_bias(bias)
-	, m_actFunc(activationFunciton)
 	, m_count(0)
 {
 	std::cout << "Initializing neural network...\n";
 
 	// Generate the structure
 	std::cout << "Creating the neurons...\n";
-	m_neurons.push_back(NeuronBuffer(inputNodes, 0));
+	m_neurons.push_back(NeuronBuffer(inputNodes, 0, activationFunciton));
 
 	uint index = 1;
 	for (const uint& x : hiddenLayers)
 	{
-		m_neurons.push_back(NeuronBuffer(x, index));
+		m_neurons.push_back(NeuronBuffer(x, index, activationFunciton));
 		index++;
 	}
 
-	m_neurons.push_back(NeuronBuffer(outputNodes, hiddenLayers.size() + 1));
+	m_neurons.push_back(NeuronBuffer(outputNodes, (uint)hiddenLayers.size() + 1, activationFunciton));
 
 	// Add the bias
 	if (bias)
 	{
 		for (uint x = 0; x < m_neurons.size() - 1; x++)
 		{
-			m_neurons[x].PushBack(Neuron(x, m_neurons[x].size(), true));
+			m_neurons[x].PushBack(Neuron(x, m_neurons[x].size(), Activation(), true));
+		}
+	}
+
+	// Create the links
+	std::cout << "Creating the links...\n";
+	for (int x = 0; x < m_neurons.size(); x++)
+	{
+		if (x != m_neurons.size() - 1)
+		{
+			m_links.push_back(std::vector<Link*>());
+		}
+
+		for (uint y = 0; y < m_neurons[x].size(); y++)
+		{
+			if (x != m_neurons.size() - 1)
+			{
+				for (Neuron& next : m_neurons[x + 1].GetArray())
+				{
+					if (next.bias)
+					{
+						continue;
+					}
+
+					m_links[x].push_back(new Link(m_neurons[x][y], next));
+				}
+			}
+		}
+	}
+
+	// Links the liks with its neightbour neurons
+	for (std::vector<Link*>& lx : m_links)
+	{
+		for (Link* l : lx)
+		{
+			for (NeuronBuffer& nx : m_neurons)
+			{
+				for (Neuron& n : nx.GetArray())
+				{
+					if (l->back.x == n.x && l->back.y == n.y)
+					{
+						n.backLinks.push_back(l);
+					}
+					if (l->front.x == n.x && l->front.y == n.y)
+					{
+						n.frontLinks.push_back(l);
+					}
+				}
+			}
+		}
+	}
+
+	std::cout << "Ready neural network!\n\n";
+}
+
+nn::NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hiddenLayers, const uint& outputNodes, const Activation& outputActivation, const bool & bias)
+	: inputs(inputNodes)
+	, outputs(outputNodes)
+	, m_bias(bias)
+	, m_count(0)
+{
+	std::cout << "Initializing neural network...\n";
+
+
+	// Generate the structure
+	std::cout << "Creating the neurons...\n";
+
+	m_neurons.push_back(NeuronBuffer(inputNodes, 0, Activation()));
+
+	for (uint x = 0; x < hiddenLayers.GetSize(); x++)
+	{
+		m_neurons.push_back(hiddenLayers.GetArray()[x]);
+	}
+
+	m_neurons.push_back(NeuronBuffer(outputNodes, m_neurons.size(), outputActivation));
+
+	// Add the bias
+	if (bias)
+	{
+		for (uint x = 0; x < m_neurons.size() - 1; x++)
+		{
+			m_neurons[x].PushBack(Neuron(x, m_neurons[x].size(), Activation(), true));
 		}
 	}
 
@@ -95,7 +175,6 @@ void NeuralNetwork::SaveToFile(const std::string& path)
 
 	file << m_count << "\n";
 	file << m_bias << "\n";
-	file << m_actFunc.id << "\n";
 	file << inputs << "\n";
 	file << outputs << "\n";
 	file << m_neurons.size() - 2 << "\n";
@@ -103,6 +182,7 @@ void NeuralNetwork::SaveToFile(const std::string& path)
 	for (uint i = 1; i < m_neurons.size() - 1; i++)
 	{
 		file << m_neurons[i].size() - 1 << "\n";
+		//file << m_neurons[i][0].activation.id << "\n";
 	}
 
 	for (uint x = 0; x < m_links.size(); x++)
@@ -131,7 +211,6 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 	uint count;
 	bool match = false;
 	bool _bias;
-	std::string _af;
 	uint _inputs;
 	uint _outputs;
 	uint _size;
@@ -153,26 +232,23 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 				_bias = std::stoi(val);
 				break;
 			case 3:
-				_af = val;
-				break;
-			case 4:
 				_inputs = std::stoi(val);
 				break;
-			case 5:
+			case 4:
 				_outputs = std::stoi(val);
 				break;
-			case 6:
+			case 5:
 				_size = std::stoi(val);
 				break;
 			default:
-				if (i < _size)
+				if (i < _size * 2)
 				{
 					_hidden.push_back(std::stoi(val));
 					i++;
 				}
 				else
 				{
-					if (m_bias == _bias && m_actFunc.id == _af && inputs == _inputs && outputs == _outputs && m_neurons.size() - 2 == _size && std::function<bool()>([&]()->bool
+					if (m_bias == _bias && inputs == _inputs && outputs == _outputs && m_neurons.size() - 2 == _size && std::function<bool()>([&]()->bool
 						{
 							for (uint j = 0; j < _size; j++)
 							{
@@ -221,12 +297,6 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 bool NeuralNetwork::HasBias()
 {
 	return m_bias;
-}
-
-// Returns the activation function (temporal)
-const nn::Activation NeuralNetwork::GetActivation()
-{
-	return m_actFunc;
 }
 
 std::vector<NeuronBuffer>& nn::NeuralNetwork::GetNeurons()
@@ -292,7 +362,7 @@ std::vector<double> NeuralNetwork::Calculate(const std::vector<double>& input)
 				}
 			}
 
-			m_neurons[x + 1][y].value = m_actFunc.funct(value);
+			m_neurons[x + 1][y].value = m_neurons[x + 1][y].activation.funct(value);
 		}
 	}
 
@@ -355,7 +425,8 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 	{
 		for (Link* l : lb)
 		{
-			float delta = m_actFunc.derivate(l->front.value) * l->front.error * lRate * l->back.value;
+			//double delta = m_actFunc.derivate(l->front.value) * l->front.error * lRate * l->back.value;
+			double delta = l->front.activation.derivate(l->front.value) * l->front.error * lRate * l->back.value;
 
 			l->weight += delta;
 		}
