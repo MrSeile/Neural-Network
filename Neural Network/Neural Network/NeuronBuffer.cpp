@@ -4,6 +4,7 @@ using namespace nn;
 
 NeuronBuffer::NeuronBuffer(const uint& size, const uint& index, const nn::Activation& activation)
 	: m_size(size)
+	, m_activation(activation)
 {
 	for (uint i = 0; i < m_size; i++)
 	{
@@ -19,6 +20,11 @@ uint NeuronBuffer::size()
 std::vector<Neuron>& NeuronBuffer::GetArray()
 {
 	return m_neurons;
+}
+
+Activation nn::NeuronBuffer::GetActivation()
+{
+	return m_activation;
 }
 
 void NeuronBuffer::PushBack(const Neuron& newNeuron)

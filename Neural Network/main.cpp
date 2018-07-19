@@ -1,4 +1,123 @@
-#include "Neural Network\NeuralNetwork.h"
+#if 1
+#include "DrawFunction\DrawFunction.h"
+#include "Neural Network\Global.h"
+#include <SFML\Graphics.hpp>
+
+int get(int x, int y)
+{
+	return x * 28 + y;
+}
+
+int main()
+{
+	sf::RenderWindow window(sf::VideoMode(660, 660), "");
+
+	std::vector<float> img;
+
+	sf::Image imgT;
+	imgT.loadFromFile("C:/Users/elies/Desktop/mnist_png/myTest/7.png");
+
+	for (uint x = 0; x < imgT.getSize().x; x++)
+	{
+		for (uint y = 0; y < imgT.getSize().y; y++)
+		{
+			img.push_back(map<float>(imgT.getPixel(x, y).r, 0, 255, -1, 1));
+		}
+	}
+
+	float bSize = window.getSize().x / (float)imgT.getSize().x;
+
+
+	std::vector<float> newI = img;
+	newI.clear();
+
+	int n = 1;
+
+	std::vector<std::vector<float>> filter =
+	{
+		{ -2, -1,  0 },
+		{ -1,  0,  1 },
+		{  0,  1,  2 }
+	};
+
+	float total = 0;
+
+	for (int x = 0; x < filter.size(); x++)
+	{
+		for (int y = 0; y < filter.size(); y++)
+		{
+			total += abs(filter[x][y]);
+		}
+	}
+
+	for (uint x = n; x < imgT.getSize().x - n; x++)
+	{
+		for (uint y = n; y < imgT.getSize().y - n; y++)
+		{
+			float sum = 0;
+			for (int i = -n; i <= n; i++)
+			{
+				for (int j = -n; j <= n; j++)
+				{
+					sum += img[get(x + i, y + j)] * filter[j + n][i + n];
+				}
+			}
+			newI[get(x, y)] = sum / total;
+		}
+	}
+
+	std::vector<sf::Vertex> m_pixels;
+	for (uint x = 0; x < imgT.getSize().x; x++)
+	{
+		for (uint y = 0; y < imgT.getSize().y; y++)
+		{
+			sf::Vertex topLeft;
+			sf::Vertex topRight;
+			sf::Vertex bottomLeft;
+			sf::Vertex bottomRight;
+
+			float pixelX = x * bSize;
+			float pixelY = y * bSize;
+
+			topLeft.position = { pixelX,		pixelY };
+			topRight.position = { pixelX + bSize,	pixelY };
+			bottomLeft.position = { pixelX,		pixelY + bSize };
+			bottomRight.position = { pixelX + bSize,	pixelY + bSize };
+
+			float color = newI[get(x, y)];
+
+			sf::Color c((sf::Uint8)map<float>(color, -1, 1, 0, 255), (sf::Uint8)map<float>(color, -1, 1, 0, 255), (sf::Uint8)map<float>(color, -1, 1, 0, 255));
+
+			topLeft.color = c;
+			topRight.color = c;
+			bottomLeft.color = c;
+			bottomRight.color = c;
+
+			m_pixels.push_back(topLeft);
+			m_pixels.push_back(bottomLeft);
+			m_pixels.push_back(bottomRight);
+			m_pixels.push_back(topRight);
+		}
+	}
+
+	window.draw(m_pixels.data(), m_pixels.size(), sf::Quads);
+
+	window.display();
+
+	while (window.isOpen())
+	{
+		sf::Event e;
+		while (window.pollEvent(e))
+		{
+			if (e.type == sf::Event::Closed)
+			{
+				window.close();
+			}
+		}
+	}
+}
+
+/*#include "Neural Network\NeuralNetwork.h"
 #include "Draw Neural Network\DrawNeuralNetwork.h"
 #include "DrawFunction\DrawFunction.h"
 #include <SFML\Graphics.hpp>
@@ -20,12 +139,12 @@ int main()
 	);
 
 	nn::HiddenLayers hidden;
-	hidden.AddLayer(5, hyper);
-	hidden.AddLayer(5, sigmoid);
+	hidden.AddLayer(4, sigmoid);
+	hidden.AddLayer(4, sigmoid);
 
 	nn::NeuralNetwork nn(2, hidden, 1, sigmoid);
 
-	DrawFunction df = DrawFunction({ 800, 200 }, { 200, 200 }, { 1, 1 }, { 0, 1 }, { 0, 1 }, [&](const sf::Vector2f& i)->float
+	DrawFunction df = DrawFunction({ 800, 200 }, { 200, 200 }, { 4, 4 }, { 0, 1 }, { 0, 1 }, [&](const sf::Vector2f& i)->float
 	{
 		return nn.Calculate({ i.x, i.y })[0];
 	});
@@ -36,9 +155,10 @@ int main()
 	font.loadFromFile("font/font.ttf");
 
 	std::vector<std::vector<double>> i = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
-	std::vector<std::vector<double>> o = { { 1 }, { 0 }, { 0 }, { 1 } };
+	std::vector<std::vector<double>> o = { { 0 }, { 1 }, { 1 }, { 0 } };
 
 	bool show = false;
+	bool pause = true;
 
 	while (window.isOpen())
 	{
@@ -55,18 +175,47 @@ int main()
 				{
 					show = show ? false : true;
 				}
+				if (e.key.code == sf::Keyboard::Space)
+				{
+					pause = pause ? false : true;
+				}
+				if (e.key.code == sf::Keyboard::P)
+				{
+					auto links = nn.GetLinks();
+					for (std::vector<nn::Link*>& x : links)
+					{
+						for (nn::Link* y : x)
+						{
+							std::cout << y->back.x << ", " << y->back.y << (y->back.bias ? " (bias)" : "") << " -> " << y->front.x << ", " << y->front.y << " (" << y->weight << ")" << std::endl;
+						}
+					}
+				}
+				if (e.key.code == sf::Keyboard::S)
+				{
+					nn.SaveToFile("C:\\Users\\elies\\Desktop\\save.txt");
+				}
+				if (e.key.code == sf::Keyboard::L)
+				{
+					nn.LoadFromFile("C:\\Users\\elies\\Desktop\\save.txt");
+				}
 			}
 		}
 		window.clear();
 
-		nn::Draw(window, nn, { 100, 300 }, 200, 100, 10, font, true);
 		if (show)
 		{
 			df.Draw(window);
 		}
 		uint index = (rand() % static_cast<int>(3 + 1));
 
-		nn.Train(i[index], o[index], 0.1);
+		if (!pause)
+		{
+			nn.Train(i[index], o[index], 0.1);
+		}
+		nn::Draw(window, nn, { 100, 300 }, 200, 100, 10, font, true);
+
+		//nn.Train(i[index], o[index], 0.1);
+		//nn.Train(i[index], o[index], 0.1);
 
 		window.display();
 	}
@@ -393,3 +542,4 @@ int main()
 	consoleThread.join();
 }
 */
+#endif

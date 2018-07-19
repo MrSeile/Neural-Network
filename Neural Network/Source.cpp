@@ -1,4 +1,5 @@
-/*#include "Neural Network\NeuralNetwork.h"
+#if 0
+#include "Neural Network\NeuralNetwork.h"
 #include "Application.h"
 #include <SFML\Graphics\Image.hpp> // Load Images
 
@@ -106,13 +107,12 @@ int main()
 	);
 
 	nn::HiddenLayers hidden;
-	hidden.AddLayer(500, sigmoid);
-	hidden.AddLayer(500, sigmoid);
+	hidden.AddLayer(484, sigmoid);
+	hidden.AddLayer(484, sigmoid);
 	hidden.AddLayer(400, sigmoid);
-	hidden.AddLayer(300, sigmoid);
+	hidden.AddLayer(289, sigmoid);
 
 	nn::NeuralNetwork nn(784, hidden, 10, sigmoid);
-	//nn::NeuralNetwork nn(784, { 500, 500, 400, 300 }, 10, sigmoid);
 	Application* app;
 
 	/////////////////////////
@@ -191,6 +191,69 @@ int main()
 			else if (cmd == "load")
 			{
 				app->Execute([&](){ nn.LoadFromFile("C:\\Users\\elies\\Desktop\\save.txt"); });
+			}
+			else if (cmd == "img")
+			{
+				std::cin >> cmd;
+
+				std::vector<double> temp;
+
+				sf::Image img;
+				img.loadFromFile(cmd);
+
+				for (uint y = 0; y < img.getSize().y; y++)
+				{
+					for (uint x = 0; x < img.getSize().x; x++)
+					{
+						temp.push_back(map<double>(img.getPixel(x, y).r, 0, 255, 0, 1));
+					}
+				}
+				
+				app->Execute([&]()
+				{
+					std::vector<double> output = nn.Calculate(temp);
+					std::vector<nn::NeuronBuffer> neurons = nn.GetNeurons();
+
+					for (int n = 0; n < neurons.size(); n++)
+					{
+						std::fstream file;
+						file.open("C:/Users/elies/Desktop/" + std::to_string(n) + ".txt", std::fstream::out | std::fstream::trunc);
+
+						for (int i = 0; i < neurons[n].size(); i++)
+						{
+							file << std::fixed << std::setprecision(5) << neurons[n][i].value << "\n";
+						}
+						
+						file.close();
+					}
+
+					std::cout << "End\n\n";
+				});
+
+				/*std::vector<nn::NeuronBuffer> neurons = nn.GetNeurons();
+
+				std::fstream file;
+				file.open("C:/Users/elies/Desktop/links" + std::to_string(0) + ".txt", std::fstream::out | std::fstream::trunc);
+
+				for (nn::Link* l : neurons[1][0].backLinks)
+				{
+					file << std::fixed << std::setprecision(5) << l->weight << "\n";
+				}*/
+
+				/*for (int i = 0; i < neurons[0].size(); i++)
+				{
+					double sum = 0;
+					for (nn::Link* l : neurons[0][i].backLinks)
+					{
+						sum += l->weight;
+					}
+
+					file << std::fixed << std::setprecision(5) << sum << "\n";
+				}*/
+
+				file.close();
+				
+				std::cout << "End\n\n";
 			}
 			else if (cmd == "test")
 			{
@@ -280,30 +343,7 @@ int main()
 		app->Init();
 	});
 
-	/////////////////////////
-	// Window loop
-	/////////////////////////
-	std::thread windowThread([&]()
-	{
-		sf::RenderWindow window(sf::VideoMode(300, 300), "");
-
-		while (!quit)
-		{
-			sf::Event e;
-			while (window.pollEvent(e))
-			{
-
-			}
-
-			window.clear();
-
-
-
-			window.display();
-		}
-	});
-
 	trainThread.join();
 	consoleThread.join();
-	//windowThread.join();
-}*/
+}
+#endif

@@ -6,7 +6,7 @@ nn::HiddenLayers::HiddenLayers()
 
 void nn::HiddenLayers::AddLayer(const uint& neuronsInLayer, const Activation& activationFunction)
 {
-	m_neurons.push_back(nn::NeuronBuffer(neuronsInLayer, m_neurons.size() + 1, activationFunction));
+	m_neurons.push_back(nn::NeuronBuffer(neuronsInLayer, (uint)m_neurons.size() + 1, activationFunction));
 }
 
 std::vector<nn::NeuronBuffer>& nn::HiddenLayers::GetArray()

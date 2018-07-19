@@ -103,7 +103,7 @@ nn::NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hidde
 		m_neurons.push_back(hiddenLayers.GetArray()[x]);
 	}
 
-	m_neurons.push_back(NeuronBuffer(outputNodes, m_neurons.size(), outputActivation));
+	m_neurons.push_back(NeuronBuffer(outputNodes, (uint)m_neurons.size(), outputActivation));
 
 	// Add the bias
 	if (bias)
@@ -182,7 +182,7 @@ void NeuralNetwork::SaveToFile(const std::string& path)
 	for (uint i = 1; i < m_neurons.size() - 1; i++)
 	{
 		file << m_neurons[i].size() - 1 << "\n";
-		//file << m_neurons[i][0].activation.id << "\n";
+		file << m_neurons[i].GetActivation().id << "\n";
 	}
 
 	for (uint x = 0; x < m_links.size(); x++)
@@ -215,7 +215,10 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 	uint _outputs;
 	uint _size;
 	std::vector<uint> _hidden;
+	std::vector<std::string> _activation;
 	uint i = 0;
+
+	bool first = true;
 
 	// Check if the structure of the nn is the same of the one in the file
 	std::string val;
@@ -243,7 +246,15 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 			default:
 				if (i < _size * 2)
 				{
-					_hidden.push_back(std::stoi(val));
+					if (first)
+					{
+						_hidden.push_back(std::stoi(val));
+					}
+					else
+					{
+						_activation.push_back(val);
+					}
+					first = first ? false : true;
 					i++;
 				}
 				else
@@ -252,7 +263,7 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 						{
 							for (uint j = 0; j < _size; j++)
 							{
-								if (m_neurons[j + 1].size() - 1 != _hidden[j])
+								if (m_neurons[j + 1].size() - 1 != _hidden[j] || m_neurons[j + 1].GetActivation().id != _activation[j])
 								{
 									return false;
 								}

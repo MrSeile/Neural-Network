@@ -37,9 +37,14 @@ namespace nn
 
 				sf::Vertex line[] = { sf::Vertex({ pos1.x + sPos.x, pos1.y + sPos.y }), sf::Vertex({ pos2.x + sPos.x, pos2.y + sPos.y }) };
 
-				sf::Uint8 color = (sf::Uint8)mapd(l->weight, -1, 1, 0, 255);
-				line[0].color = sf::Color(255 - color, color, 0);
-				line[1].color = sf::Color(255 - color, color, 0);
+				float color = tanh(l->weight);
+
+				float r = color < 0 ? 1 : 1 - color;
+				float g = color > 0 ? 1 : 1 + color;
+				float b = 1 - abs(color);
+
+				line[0].color = sf::Color((sf::Uint8)map<float>(r, 0, 1, 0, 255), (sf::Uint8)map<float>(g, 0, 1, 0, 255), (sf::Uint8)map<float>(b, 0, 1, 0, 255));
+				line[1].color = sf::Color((sf::Uint8)map<float>(r, 0, 1, 0, 255), (sf::Uint8)map<float>(g, 0, 1, 0, 255), (sf::Uint8)map<float>(b, 0, 1, 0, 255));
 
 				window.draw(line, 2, sf::Lines);
 			}
