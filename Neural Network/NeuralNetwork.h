@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Global.h"
-#include "Link.h"
-#include "Neuron.h"
-#include "NeuronBuffer.h"
-#include "HiddenLayers.h"
-#include "Activation.h"
+#include "Neural Network/Global.h"
+#include "Neural Network/Link.h"
+#include "Neural Network/Neuron.h"
+#include "Neural Network/NeuronBuffer.h"
+#include "Neural Network/HiddenLayers.h"
+#include "Neural Network/Activation.h"
 
 namespace nn
 {

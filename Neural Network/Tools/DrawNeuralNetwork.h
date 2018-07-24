@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML\Graphics.hpp>
-#include "..\Neural Network\NeuralNetwork.h"
+#include "..\NeuralNetwork.h"
 
 namespace nn
 {
@@ -37,14 +37,14 @@ namespace nn
 
 				sf::Vertex line[] = { sf::Vertex({ pos1.x + sPos.x, pos1.y + sPos.y }), sf::Vertex({ pos2.x + sPos.x, pos2.y + sPos.y }) };
 
-				float color = tanh(l->weight);
+				double color = tanh(l->weight);
 
-				float r = color < 0 ? 1 : 1 - color;
-				float g = color > 0 ? 1 : 1 + color;
-				float b = 1 - abs(color);
+				double r = color < 0 ? 1 : 1 - color;
+				double g = color > 0 ? 1 : 1 + color;
+				double b = 1 - abs(color);
 
-				line[0].color = sf::Color((sf::Uint8)map<float>(r, 0, 1, 0, 255), (sf::Uint8)map<float>(g, 0, 1, 0, 255), (sf::Uint8)map<float>(b, 0, 1, 0, 255));
-				line[1].color = sf::Color((sf::Uint8)map<float>(r, 0, 1, 0, 255), (sf::Uint8)map<float>(g, 0, 1, 0, 255), (sf::Uint8)map<float>(b, 0, 1, 0, 255));
+				line[0].color = sf::Color((sf::Uint8)map<double>(r, 0, 1, 0, 255), (sf::Uint8)map<double>(g, 0, 1, 0, 255), (sf::Uint8)map<double>(b, 0, 1, 0, 255));
+				line[1].color = sf::Color((sf::Uint8)map<double>(r, 0, 1, 0, 255), (sf::Uint8)map<double>(g, 0, 1, 0, 255), (sf::Uint8)map<double>(b, 0, 1, 0, 255));
 
 				window.draw(line, 2, sf::Lines);
 			}
@@ -81,7 +81,7 @@ namespace nn
 				{
 					sf::Text text;
 					text.setFont(font);
-					text.setCharacterSize(radius);
+					text.setCharacterSize((uint)radius);
 					text.setPosition(circle.getPosition().x - radius / 2.f, circle.getPosition().y - radius / 2.f);
 					text.setFillColor(sf::Color::White);
 					text.setOutlineColor(sf::Color::Black);

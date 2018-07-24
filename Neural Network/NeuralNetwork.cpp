@@ -35,7 +35,7 @@ NeuralNetwork::NeuralNetwork(const uint& inputNodes, const std::vector<uint>& hi
 
 	// Create the links
 	std::cout << "Creating the links...\n";
-	for (int x = 0; x < m_neurons.size(); x++)
+	for (uint x = 0; x < m_neurons.size(); x++)
 	{
 		if (x != m_neurons.size() - 1)
 		{
@@ -84,7 +84,8 @@ NeuralNetwork::NeuralNetwork(const uint& inputNodes, const std::vector<uint>& hi
 	std::cout << "Ready neural network!\n\n";
 }
 
-nn::NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hiddenLayers, const uint& outputNodes, const Activation& outputActivation, const bool & bias)
+// Constructor
+NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hiddenLayers, const uint& outputNodes, const Activation& outputActivation, const bool & bias)
 	: inputs(inputNodes)
 	, outputs(outputNodes)
 	, m_bias(bias)
@@ -116,7 +117,7 @@ nn::NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hidde
 
 	// Create the links
 	std::cout << "Creating the links...\n";
-	for (int x = 0; x < m_neurons.size(); x++)
+	for (uint x = 0; x < m_neurons.size(); x++)
 	{
 		if (x != m_neurons.size() - 1)
 		{
@@ -163,166 +164,6 @@ nn::NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hidde
 	}
 
 	std::cout << "Ready neural network!\n\n";
-}
-
-// Save all the witghts into a file
-void NeuralNetwork::SaveToFile(const std::string& path)
-{
-	std::cout << "Saving Neural Network...\n";
-
-	std::fstream file;
-	file.open(path, std::fstream::out | std::fstream::trunc);
-
-	file << m_count << "\n";
-	file << m_bias << "\n";
-	file << inputs << "\n";
-	file << outputs << "\n";
-	file << m_neurons.size() - 2 << "\n";
-	
-	for (uint i = 1; i < m_neurons.size() - 1; i++)
-	{
-		file << m_neurons[i].size() - 1 << "\n";
-		file << m_neurons[i].GetActivation().id << "\n";
-	}
-
-	for (uint x = 0; x < m_links.size(); x++)
-	{
-		for (uint y = 0; y < m_links[x].size(); y++)
-		{
-			file << m_links[x][y]->weight << "\n";
-		}
-	}
-
-	file.close();
-
-	std::cout << "Saved!\n\n";
-}
-
-// Set all the witghts from file
-void NeuralNetwork::LoadFromFile(const std::string& path)
-{
-	std::cout << "Loading Neural Network from file...\n";
-
-	std::fstream file;
-	file.open(path);
-	int x = 0;
-	int y = 0;
-
-	uint count;
-	bool match = false;
-	bool _bias;
-	uint _inputs;
-	uint _outputs;
-	uint _size;
-	std::vector<uint> _hidden;
-	std::vector<std::string> _activation;
-	uint i = 0;
-
-	bool first = true;
-
-	// Check if the structure of the nn is the same of the one in the file
-	std::string val;
-	for (int line = 1; file >> val; line++)
-	{
-		if (!match)
-		{
-			switch (line)
-			{
-			case 1:
-				count = std::stoi(val);
-
-			case 2:
-				_bias = std::stoi(val);
-				break;
-			case 3:
-				_inputs = std::stoi(val);
-				break;
-			case 4:
-				_outputs = std::stoi(val);
-				break;
-			case 5:
-				_size = std::stoi(val);
-				break;
-			default:
-				if (i < _size * 2)
-				{
-					if (first)
-					{
-						_hidden.push_back(std::stoi(val));
-					}
-					else
-					{
-						_activation.push_back(val);
-					}
-					first = first ? false : true;
-					i++;
-				}
-				else
-				{
-					if (m_bias == _bias && inputs == _inputs && outputs == _outputs && m_neurons.size() - 2 == _size && std::function<bool()>([&]()->bool
-						{
-							for (uint j = 0; j < _size; j++)
-							{
-								if (m_neurons[j + 1].size() - 1 != _hidden[j] || m_neurons[j + 1].GetActivation().id != _activation[j])
-								{
-									return false;
-								}
-							}
-							return true;
-						})())
-					{
-						match = true;
-					}
-					else
-					{
-						std::cout << "Load failed: Neural Network stucture do not match\n\n";
-						return;
-					}
-				}
-				break;
-			}
-		}
-		// If the structure of the nn is the same of the one in the file, set the witghts
-		if (match)
-		{
-			m_links[x][y]->weight = std::stod(val);
-
-			y++;
-			if (y == m_links[x].size())
-			{
-				x++;
-				y = 0;
-			}
-
-		}
-	}
-	if (match)
-	{
-		m_count = count;
-	}
-
-	std::cout << "Loaded!\n\n";
-}
-
-// Returns if the nn has bias or not
-bool NeuralNetwork::HasBias()
-{
-	return m_bias;
-}
-
-std::vector<NeuronBuffer>& nn::NeuralNetwork::GetNeurons()
-{
-	return m_neurons;
-}
-
-std::vector<std::vector<Link*>>& nn::NeuralNetwork::GetLinks()
-{
-	return m_links;
-}
-
-uint nn::NeuralNetwork::GetTrainCount()
-{
-	return m_count;
 }
 
 // Guess an output for an input
@@ -397,7 +238,6 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 		std::cout << "\n";
 		std::cout << "==================================\n";
 		std::cout << "  Input or output size not match  \n";
-		std::cout << input.size() << " - " << inputs << "\n";
 		std::cout << "==================================\n";
 		std::cout << "\n";
 
@@ -446,6 +286,170 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 	m_count++;
 }
 
+// Save all the witghts into a file
+void NeuralNetwork::SaveToFile(const std::string& path)
+{
+	std::cout << "Saving Neural Network...\n";
+
+	std::fstream file;
+	file.open(path, std::fstream::out | std::fstream::trunc);
+
+	file << m_count << "\n";
+	file << m_bias << "\n";
+	file << inputs << "\n";
+	file << outputs << "\n";
+	file << m_neurons.size() - 2 << "\n";
+	
+	for (uint i = 1; i < m_neurons.size() - 1; i++)
+	{
+		file << m_neurons[i].size() - 1 << "\n";
+		file << m_neurons[i].GetActivation().id << "\n";
+	}
+
+	for (uint x = 0; x < m_links.size(); x++)
+	{
+		for (uint y = 0; y < m_links[x].size(); y++)
+		{
+			file << m_links[x][y]->weight << "\n";
+		}
+	}
+
+	file.close();
+
+	std::cout << "Saved!\n\n";
+}
+
+// Set all the witghts from file
+void NeuralNetwork::LoadFromFile(const std::string& path)
+{
+	std::cout << "Loading Neural Network from file...\n";
+
+	std::fstream file;
+	file.open(path);
+	int x = 0;
+	int y = 0;
+
+	uint count;
+	bool match = false;
+	bool _bias;
+	uint _inputs;
+	uint _outputs;
+	uint _size;
+	std::vector<uint> _hidden;
+	std::vector<std::string> _activation;
+	uint i = 0;
+
+	bool first = true;
+
+	// Check if the structure of the nn is the same of the one in the file
+	std::string val;
+	for (int line = 1; file >> val; line++)
+	{
+		if (!match)
+		{
+			switch (line)
+			{
+			case 1:
+				count = std::stoi(val);
+				break;
+			case 2:
+				_bias = std::stoi(val);
+				break;
+			case 3:
+				_inputs = std::stoi(val);
+				break;
+			case 4:
+				_outputs = std::stoi(val);
+				break;
+			case 5:
+				_size = std::stoi(val);
+				break;
+			default:
+				if (i < _size * 2)
+				{
+					if (first)
+					{
+						_hidden.push_back(std::stoi(val));
+					}
+					else
+					{
+						_activation.push_back(val);
+					}
+					first = first ? false : true;
+					i++;
+				}
+				else
+				{
+					if (m_bias == _bias && inputs == _inputs && outputs == _outputs && m_neurons.size() - 2 == _size && std::function<bool()>([&]()->bool
+						{
+							for (uint j = 0; j < _size; j++)
+							{
+								if (m_neurons[j + 1].size() - 1 != _hidden[j] || m_neurons[j + 1].GetActivation().id != _activation[j])
+								{
+									return false;
+								}
+							}
+							return true;
+						})())
+					{
+						match = true;
+					}
+					else
+					{
+						std::cout << "Load failed: Neural Network structure do not match\n\n";
+						return;
+					}
+				}
+				break;
+			}
+		}
+		// If the structure of the nn is the same of the one in the file, set the witghts
+		if (match)
+		{
+			m_links[x][y]->weight = std::stod(val);
+
+			y++;
+			if (y == m_links[x].size())
+			{
+				x++;
+				y = 0;
+			}
+
+		}
+	}
+	if (match)
+	{
+		m_count = count;
+	}
+
+	std::cout << "Loaded!\n\n";
+}
+
+// Returns if the nn has bias or not
+bool NeuralNetwork::HasBias()
+{
+	return m_bias;
+}
+
+// Returns the neurons array
+std::vector<NeuronBuffer>& NeuralNetwork::GetNeurons()
+{
+	return m_neurons;
+}
+
+// Returns the links array
+std::vector<std::vector<Link*>>& NeuralNetwork::GetLinks()
+{
+	return m_links;
+}
+
+// Returns the number of times it's been trained
+uint NeuralNetwork::GetTrainCount()
+{
+	return m_count;
+}
+
+// Destructor
 NeuralNetwork::~NeuralNetwork()
 {
 
