@@ -165,7 +165,7 @@ int main()
 					bool bias = nn.HasBias();
 					std::cout << "bias: " << (bias ? "true" : "false") << "\n";
 					std::cout << "i: " << struc[0].size() - bias << "\n";
-					for (int i = 1; i < struc.size() - 1; i++)
+					for (uint i = 1; i < struc.size() - 1; i++)
 					{
 						std::cout << i << ": " << struc[i].size() - bias << " " << struc[i].GetActivation().id << "\n";
 					}

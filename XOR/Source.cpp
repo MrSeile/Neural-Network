@@ -22,7 +22,7 @@ int main()
 
 	DrawFunction df({ 500, 300 }, { 200, 200 }, { 1, 1 }, { 0, 1 }, { 0, 1 }, [&](const sf::Vector2f& i)->float
 	{
-		return nn.Calculate({ i.x, i.y })[0];
+		return (float)nn.Calculate({ i.x, i.y })[0];
 	});
 
 	bool draw = false;
