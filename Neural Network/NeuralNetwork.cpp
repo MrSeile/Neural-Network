@@ -230,7 +230,7 @@ std::vector<double> NeuralNetwork::Calculate(const std::vector<double>& input)
 }
 
 // Backpropagate
-void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<double>& optimal, const double& lRate)
+void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<double>& optimal, const double& lRate, const double& dropout)
 {
 	// Check if the # of inputs and outputs match the nn # of inputs and outputs
 	if (input.size() != inputs || optimal.size() != outputs)
@@ -246,6 +246,23 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 
 	// Make a guess
 	std::vector<double> output = Calculate(input);
+
+	// Dropout
+	if (dropout != 0)
+	{
+		for (uint x = 1; x < m_neurons.size() - 1; x++)
+		{
+			for (uint y = 0; y < (m_bias ? m_neurons[x].size() - 1 : m_neurons[x].size()); y++)
+			{
+				double r = randRange<double>(0, 1);
+
+				if (r < dropout)
+				{
+					m_neurons[x][y].value = 0;
+				}
+			}
+		}
+	}
 
 	// Calculate the errors
 	for (uint i = 0; i < outputs; i++)
@@ -276,7 +293,6 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 	{
 		for (Link* l : lb)
 		{
-			//double delta = m_actFunc.derivate(l->front.value) * l->front.error * lRate * l->back.value;
 			double delta = l->front.activation.derivate(l->front.value) * l->front.error * lRate * l->back.value;
 
 			l->weight += delta;

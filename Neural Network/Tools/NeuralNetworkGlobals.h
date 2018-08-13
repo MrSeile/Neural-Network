@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <fstream>
 #include <filesystem>
-#include "Vec2.h"
+#include "..\Neural Network\Vec2.h"
 
 typedef unsigned int uint;
 #define mapf map<float>

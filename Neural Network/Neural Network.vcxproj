@@ -160,7 +160,7 @@
     <ClInclude Include="Neural Network\Activation.h" />
     <ClInclude Include="Tools\ConvolutionalTools.h" />
     <ClInclude Include="Neural Network\HiddenLayers.h" />
-    <ClInclude Include="Neural Network\Global.h" />
+    <ClInclude Include="Tools\NeuralNetworkGlobals.h" />
     <ClInclude Include="Neural Network\NeuronBuffer.h" />
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Neural Network\Link.h" />

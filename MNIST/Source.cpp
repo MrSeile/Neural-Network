@@ -110,17 +110,11 @@ int main()
 	/////////////////////////
 	// Global variables
 	/////////////////////////
-	nn::NeuralNetwork nn(784, { 200, 200, 100 }, 10, sigmoid);
+	nn::NeuralNetwork nn(784, { 200, 200, 100, 50 }, 10, sigmoid);
 	Application* app;
 
-	std::vector<double> filter =
-	{
-		2,  1,  0,
-		1,  0, -1,
-		0, -1, -2
-	};
-
 	double lRate = 0.001;
+	double dropout = 0.2;
 
 	bool train = true;
 	bool quit = false;
@@ -140,13 +134,24 @@ int main()
 				quit = true;
 				app->End();
 			}
-			else if (cmd == "lRate")
+			else if (cmd == "set")
 			{
-				app->Execute([&]()
+				if (cmd == "lRate")
 				{
-					std::cin >> lRate;
-					std::cout << "Learning rate set to " << lRate << "\n\n";
-				});
+					app->Execute([&]()
+					{
+						std::cin >> lRate;
+						std::cout << "Learning rate set to " << lRate << "\n\n";
+					});
+				}
+				else if (cmd == "dropout")
+				{
+					app->Execute([&]()
+					{
+						std::cin >> dropout;
+						std::cout << "Dropout set to " << dropout << "\n\n";
+					});
+				}
 			}
 			else if (cmd == "get")
 			{
@@ -158,6 +163,10 @@ int main()
 				if (cmd == "count")
 				{
 					std::cout << nn.GetTrainCount() << "\n\n";
+				}
+				else if (cmd == "dropout")
+				{
+					std::cout << dropout << "\n\n";
 				}
 				if (cmd == "structure")
 				{
@@ -226,7 +235,6 @@ int main()
 						{
 							std::cout << " ---------------------------------------------------------------------------------------------------------------\n";
 
-							//auto input = nn::ApplyFilter(filter, test[n], 28, 28);
 							std::vector<double> output = nn.Calculate(test[n]);
 
 							std::cout << " |    " << n << "    | ";
@@ -259,7 +267,6 @@ int main()
 
 					app->Execute([&]()
 					{
-						//auto input = nn::ApplyFilter(filter, temp, 28, 28);
 						std::vector<double> output = nn.Calculate(temp);
 
 						for (double x : output)
@@ -319,7 +326,6 @@ int main()
 										file.close();
 										window.close();
 
-										//auto input = nn::ApplyFilter(filter, temp, 28, 28);
 										auto output = nn.Calculate(temp);
 
 										std::cout << " -----------------------------------------------------------------------------------------------------\n";
@@ -395,8 +401,7 @@ int main()
 
 			if (train)
 			{
-				//auto input = nn::ApplyFilter(filter, data[n][index], 28, 28);
-				nn.Train(data[n][index], optimal[n], lRate);
+				nn.Train(data[n][index], optimal[n], lRate, dropout);
 			}
 		});
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Global.h"
+#include "..\Tools\NeuralNetworkGlobals.h"
 #include "Activation.h"
 
 namespace nn

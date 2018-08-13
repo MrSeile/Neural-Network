@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Neural Network/Global.h"
+#include "Tools/NeuralNetworkGlobals.h"
 #include "Neural Network/Link.h"
 #include "Neural Network/Neuron.h"
 #include "Neural Network/NeuronBuffer.h"
@@ -31,7 +31,7 @@ namespace nn
 		uint GetTrainCount();
 
 		std::vector<double> Calculate(const std::vector<double>& input);
-		void Train(const std::vector<double>& input, const std::vector<double>& optimal, const double& lRate);
+		void Train(const std::vector<double>& input, const std::vector<double>& optimal, const double& lRate, const double& dropout);
 		void SaveToFile(const std::string& path);
 		void LoadFromFile(const std::string& path);
 

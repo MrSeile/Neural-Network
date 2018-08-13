@@ -1,4 +1,5 @@
-#include <NeuralNetwork.h>
+//#include <NeuralNetwork.h>
+#include <Tools\NeuralNetworkGlobals.h>
 #include <Tools\ConvolutionalTools.h>
 #include <SFML\Graphics.hpp>
 
@@ -69,7 +70,7 @@ int main()
 
 	sf::Image imgT;
 	//imgT.loadFromFile("C:/Users/elies/Desktop/mnist_png/testing/0/3.png");
-	imgT.loadFromFile("C:/Users/elies/Desktop/home.jpg");
+	imgT.loadFromFile("C:/Users/elies/Desktop/lion1.jpg");
 	for (uint y = 0; y < imgT.getSize().y; y++)
 	{
 		for (uint x = 0; x < imgT.getSize().x; x++)
@@ -104,22 +105,15 @@ int main()
 		-1, -2, -1
 	};
 
-	/*std::vector<double> filterX =
+	std::vector<double> filterX =
 	{
 		-1,  0,  1,
 		-2,  0,  2,
 		-1,  0,  1
-	};*/
-
-	std::vector<double> filterX =
-	{
-		 1,  1,  1,
-		 1, 99,  1,
-		 1,  1,  1
 	};
 #endif
 
-	int n = (sqrt(filterX.size()) - 1) / 2;
+	int n = (int)((sqrt(filterX.size()) - 1) / 2.f);
 
 	sf::Vector2<std::vector<double>> newI;
 	newI.x = nn::ApplyFilter(filterX, img, imgT.getSize().x, imgT.getSize().y);
@@ -143,13 +137,13 @@ int main()
 			double filtX = newI.x[get(x, y, imgT.getSize().x - 2 * n)];
 			double filtY = newI.y[get(x, y, imgT.getSize().x - 2 * n)];
 
-			float bright = (sqrt(pow(filtX, 2) + pow(filtY, 2)));
+			float bright = (float)(sqrt(pow(filtX, 2) + pow(filtY, 2)));
 
-			//float angle = atan2(filtY, filtX) * 180 / PI;
-			//sf::Color c(HSVtoRGB(angle, 100, bright * 50));
-			sf::Uint8 col = (sf::Uint8)map<double>(filtX, -1, 1, 0, 255);
+			float angle = (float)(atan2(filtY, filtX) * 180 / PI);
+			sf::Color c(HSVtoRGB(angle, 100, bright * 50));
+			//sf::Uint8 col = (sf::Uint8)map<double>(filtX, -1, 1, 0, 255);
 			//sf::Uint8 col = (sf::Uint8)map<double>(bright, 0, 1, 0, 255);
-			sf::Color c(col, col, col);
+			//sf::Color c(col, col, col);
 
 			output.setPixel(x, y, c);
 		}
