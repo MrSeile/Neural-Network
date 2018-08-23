@@ -5,7 +5,7 @@ inline float map(const float& value, const float& inputMin, const float& inputMa
 	return outputMin + ((outputMax - outputMin) / (inputMax - inputMin)) * (value - inputMin);
 }
 
-DrawFunction::DrawFunction(const sf::Vector2f& pos, const sf::Vector2f& size, const sf::Vector2f& cellSize, const sf::Vector2f& inputRange, const sf::Vector2f& outputRange, const std::function<float(const sf::Vector2f& input)>& function)
+DrawFunction::DrawFunction(const nn::Vec2<float>& pos, const nn::Vec2<float>& size, const nn::Vec2<float>& cellSize, const nn::Vec2<float>& inputRange, const nn::Vec2<float>& outputRange, const std::function<float(const nn::Vec2<float>& input)>& function)
 {
 	Create(pos, size, cellSize, inputRange, outputRange, function);
 }
@@ -14,7 +14,7 @@ DrawFunction::DrawFunction()
 {
 }
 
-void DrawFunction::Create(const sf::Vector2f& pos, const sf::Vector2f& size, const sf::Vector2f& cellSize, const sf::Vector2f& inputRange, const sf::Vector2f& outputRange, const std::function<float(const sf::Vector2f& input)>& function)
+void DrawFunction::Create(const nn::Vec2<float>& pos, const nn::Vec2<float>& size, const nn::Vec2<float>& cellSize, const nn::Vec2<float>& inputRange, const nn::Vec2<float>& outputRange, const std::function<float(const nn::Vec2<float>& input)>& function)
 {
 	m_pixels.clear();
 

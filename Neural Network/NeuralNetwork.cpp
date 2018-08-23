@@ -85,14 +85,13 @@ NeuralNetwork::NeuralNetwork(const uint& inputNodes, const std::vector<uint>& hi
 }
 
 // Constructor
-NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hiddenLayers, const uint& outputNodes, const Activation& outputActivation, const bool & bias)
+NeuralNetwork::NeuralNetwork(const uint& inputNodes, nn::HiddenLayers& hiddenLayers, const uint& outputNodes, const Activation& outputActivation, const bool& bias)
 	: inputs(inputNodes)
 	, outputs(outputNodes)
 	, m_bias(bias)
 	, m_count(0)
 {
 	std::cout << "Initializing neural network...\n";
-
 
 	// Generate the structure
 	std::cout << "Creating the neurons...\n";
@@ -296,6 +295,7 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 			double delta = l->front.activation.derivate(l->front.value) * l->front.error * lRate * l->back.value;
 
 			l->weight += delta;
+			l->delta += delta;
 		}
 	}
 
@@ -423,6 +423,7 @@ void NeuralNetwork::LoadFromFile(const std::string& path)
 		if (match)
 		{
 			m_links[x][y]->weight = std::stod(val);
+			m_links[x][y]->delta = 0;
 
 			y++;
 			if (y == m_links[x].size())

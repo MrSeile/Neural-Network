@@ -14,6 +14,7 @@ namespace nn
 		Neuron& front;
 
 		double weight;
+		double delta;
 
 		~Link();
 	};

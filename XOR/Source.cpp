@@ -7,8 +7,8 @@ int main()
 {
 	srand((uint)time(NULL));
 
-	std::vector<std::vector<double>> input = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
-	std::vector<std::vector<double>> output = { { 0 }, { 1 }, { 1 }, { 0 } };
+	std::vector<std::vector<double>> input =	{ { 0, 0 }	, { 0, 1 }	, { 1, 0 }	, { 1, 1 }	};
+	std::vector<std::vector<double>> output =	{ { 0 }		, { 1 }		, { 1 }		, { 0 }		};
 
 	nn::Activation sigmoid(
 		"Sigmoid",
@@ -20,11 +20,16 @@ int main()
 	nn::NeuralNetwork nn(2, { 4, 4 }, 1, sigmoid);
 	Application* app;
 
+	std::thread windowThread([&]() {});
+
 	double lRate = 0.1;
 	double dropout = 0.25;
 
 	bool train = true;
 	bool quit = false;
+
+	sf::Font font;
+	font.loadFromFile("font/font.ttf");
 
 	/////////////////////////
 	// Console loop
@@ -140,6 +145,42 @@ int main()
 					});
 				}
 			}
+			else if (cmd == "show")
+			{
+				std::cout << "\n";
+
+				windowThread.detach();
+				windowThread = std::thread([&]()
+				{
+					DrawFunction df({ 500, 300 }, { 200, 200 }, { 4, 4 }, { 0, 1 }, { 0, 1 }, [&](const nn::Vec2<float>& i)->float
+					{
+						return (float)nn.Calculate({ i.x, i.y })[0];
+					});
+
+					sf::RenderWindow window({ 1200, 600 }, "");
+					while (window.isOpen())
+					{
+						sf::Event e;
+						while (window.pollEvent(e))
+						{
+							if (e.type == sf::Event::Closed)
+							{
+								window.close();
+							}
+						}
+
+						window.clear();
+
+						app->Execute([&]()
+						{
+							nn::Draw(window, nn, { 50, 300 }, 100, 80, 10, font, true);
+							df.Draw(window);
+						});
+
+						window.display();
+					}
+				});
+			}
 			else
 			{
 				system(cmd.c_str());
@@ -156,7 +197,7 @@ int main()
 		{
 			if (train)
 			{
-				uint index = (rand() % static_cast<int>(3 + 1));
+				uint index = (rand() % (int)(3 + 1));
 				nn.Train(input[index], output[index], lRate, dropout);
 			}
 		});
@@ -166,10 +207,11 @@ int main()
 
 	trainThread.join();
 	consoleThread.join();
+	windowThread.join();
 
 	/*DrawFunction df({ 500, 300 }, { 200, 200 }, { 4, 4 }, { 0, 1 }, { 0, 1 }, [&](const sf::Vector2f& i)->float
 	{
-		return (float)nn.Calculate({ i.x, i.y })[0];
+	return (float)nn.Calculate({ i.x, i.y })[0];
 	});
 
 	bool draw = true;
@@ -177,32 +219,32 @@ int main()
 	sf::RenderWindow window({ 1200, 600 }, "");
 	while (window.isOpen())
 	{
-		sf::Event e;
-		while (window.pollEvent(e))
-		{
-			if (e.type == sf::Event::Closed)
-			{
-				window.close();
-			}
-			if (e.type == sf::Event::KeyPressed)
-			{
-				if (e.key.code == sf::Keyboard::D)
-				{
-					draw = draw ? false : true;
-				}
-			}
-		}
+	sf::Event e;
+	while (window.pollEvent(e))
+	{
+	if (e.type == sf::Event::Closed)
+	{
+	window.close();
+	}
+	if (e.type == sf::Event::KeyPressed)
+	{
+	if (e.key.code == sf::Keyboard::D)
+	{
+	draw = draw ? false : true;
+	}
+	}
+	}
 
-		window.clear();
+	window.clear();
 
-		uint index = (rand() % static_cast<int>(3 + 1));
-		nn.Train(input[index], output[index], 0.1, 0);
-		if (draw)
-		{
-			nn::Draw(window, nn, { 50, 300 }, 100, 80, 10, font, true);
-			df.Draw(window);
-		}
+	uint index = (rand() % static_cast<int>(3 + 1));
+	nn.Train(input[index], output[index], 0.1, 0);
+	if (draw)
+	{
+	nn::Draw(window, nn, { 50, 300 }, 100, 80, 10, font, true);
+	df.Draw(window);
+	}
 
-		window.display();
+	window.display();
 	}*/
 }

@@ -1,24 +1,24 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <functional>
+#include <SFML\Graphics.hpp>
+#include "NeuralNetworkGlobals.h"
 
 class DrawFunction
 {
 private:
 	std::vector<sf::Vertex> m_pixels;
-	sf::Vector2f m_size;
-	sf::Vector2f m_cellSize;
-	sf::Vector2f m_inputRange;
-	sf::Vector2f m_outputRange;
+	nn::Vec2<float> m_size;
+	nn::Vec2<float> m_cellSize;
+	nn::Vec2<float> m_inputRange;
+	nn::Vec2<float> m_outputRange;
 
-	std::function<float(const sf::Vector2f& input)> m_func;
+	std::function<float(const nn::Vec2<float>& input)> m_func;
 
 public:
-	DrawFunction(const sf::Vector2f& pos, const sf::Vector2f& size, const sf::Vector2f& cellSize, const sf::Vector2f& inputRange, const sf::Vector2f& outputRange, const std::function<float(const sf::Vector2f& input)>& function);
+	DrawFunction(const nn::Vec2<float>& pos, const nn::Vec2<float>& size, const nn::Vec2<float>& cellSize, const nn::Vec2<float>& inputRange, const nn::Vec2<float>& outputRange, const std::function<float(const nn::Vec2<float>& input)>& function);
 	DrawFunction();
 
-	void Create(const sf::Vector2f& pos, const sf::Vector2f& size, const sf::Vector2f& cellSize, const sf::Vector2f& inputRange, const sf::Vector2f& outputRange, const std::function<float(const sf::Vector2f& input)>& function);
+	void Create(const nn::Vec2<float>& pos, const nn::Vec2<float>& size, const nn::Vec2<float>& cellSize, const nn::Vec2<float>& inputRange, const nn::Vec2<float>& outputRange, const std::function<float(const nn::Vec2<float>& input)>& function);
 	void Draw(sf::RenderWindow& window);
 
 

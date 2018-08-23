@@ -13,6 +13,8 @@
 #include <filesystem>
 #include "..\Neural Network\Vec2.h"
 
+#define PI 3.1415926535
+
 typedef unsigned int uint;
 #define mapf map<float>
 #define mapd map<double>
