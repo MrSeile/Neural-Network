@@ -1,7 +1,88 @@
 #include <NeuralNetwork.h>
-#include <Tools\DrawNeuralNetwork.h>
-#include <Tools\DrawFunction.h>
+#include "..\User Interface\Widget.h"
 #include <Tools\Application.h>
+
+
+namespace nn
+{
+	void Draw(sf::RenderWindow& window, NeuralNetwork& nn, const nn::Vec2<float>& sPos, const float& scaleX, const float& scaleY, const float& radius)
+	{
+		for (std::vector<Link*>& i : nn.GetLinks())
+		{
+			for (Link* l : i)
+			{
+				sf::Vector2f pos1;
+				if (nn.HasBias() && l->back.x != nn.GetNeurons().size() - 1)
+				{
+					pos1.x = l->back.x * scaleX;
+					pos1.y = (l->back.y * scaleY) - (scaleY * ((nn.GetNeurons()[l->back.x].size() - 2) / 2.f));
+				}
+				else
+				{
+					pos1.x = l->back.x * scaleX;
+					pos1.y = (l->back.y * scaleY) - (scaleY * ((nn.GetNeurons()[l->back.x].size() - 1) / 2.f));
+				}
+
+				sf::Vector2f pos2;
+				if (nn.HasBias() && l->front.x != nn.GetNeurons().size() - 1)
+				{
+					pos2.x = l->front.x * scaleX;
+					pos2.y = (l->front.y * scaleY) - (scaleY * ((nn.GetNeurons()[l->front.x].size() - 2) / 2.f));
+				}
+				else
+				{
+					pos2.x = l->front.x * scaleX;
+					pos2.y = (l->front.y * scaleY) - (scaleY * ((nn.GetNeurons()[l->front.x].size() - 1) / 2.f));
+				}
+
+				ui::Line line("1", { pos1.x + sPos.x, pos1.y + sPos.y }, { pos2.x + sPos.x, pos2.y + sPos.y });
+
+				double c = tanh(l->weight / 20);
+
+				/*double r = c < 0 ? 1 : 1 - c;
+				double g = c > 0 ? 1 : 1 + c;
+				double b = 1 - abs(c);
+
+				sf::Color color((sf::Uint8)map<double>(r, 0, 1, 0, 255), (sf::Uint8)map<double>(g, 0, 1, 0, 255), (sf::Uint8)map<double>(b, 0, 1, 0, 255));*/
+
+				line.SetWidth(map<float>(c, -1, 1, 8, 15));
+
+				//line.SetColor(color);
+
+				line.Draw(window);
+			}
+		}
+
+		for (NeuronBuffer& i : nn.GetNeurons())
+		{
+			for (Neuron& j : i.GetArray())
+			{
+				float r = map<float>(j.value, 0, 1, radius - 10, radius);
+
+				sf::CircleShape circle(r);
+				circle.setOrigin(r, r);
+				circle.setFillColor(sf::Color::Black);
+
+				sf::Vector2f pos;
+
+				if (nn.HasBias() && j.x != nn.GetNeurons().size() - 1)
+				{
+					pos.x = j.x * scaleX;
+					pos.y = (j.y * scaleY) - (scaleY * ((i.size() - 2) / 2.f));
+				}
+				else
+				{
+					pos.x = j.x * scaleX;
+					pos.y = (j.y * scaleY) - (scaleY * ((i.size() - 1) / 2.f));
+				}
+				circle.setPosition({ pos.x + sPos.x, pos.y + sPos.y });
+
+				window.draw(circle);
+			}
+		}
+	}
+}
+
 
 int main()
 {
@@ -14,18 +95,50 @@ int main()
 		"Sigmoid",
 		{ 0, 1 },
 		[](const double& x)->double { return 1.f / (1.f + exp(-x)); },
-		[](const double& x)->double { return x * (1 - x); }
+		[](const double& x)->double { return (1.f / (1.f + exp(-x))) * (1 - (1.f / (1.f + exp(-x)))); }
 	);
 
-	nn::NeuralNetwork nn(2, { 4, 4 }, 1, sigmoid);
+	nn::Activation sigmoid2(
+		"Sigmoid",
+		{ 0, 1 },
+		[](const double& x)->double { return 1.f / (1.f + exp(-x)); },
+		[](const double& x)->double { return 1; }
+	);
+
+	nn::NeuralNetwork nn(2, { 3 }, 1, sigmoid, false);
+	nn.LoadFromFile("C:\\Users\\elies\\Desktop\\save.txt");
+
+	std::cout << "           ---------------------\n";
+	std::cout << "           |    0    |    1    |\n";
+	std::cout << " -------------------------------\n";
+	std::cout << " |    0    | " << std::fixed << std::setprecision(5) << nn.Calculate({ 0, 0 })[0] << " | " << nn.Calculate({ 0, 1 })[0] << " |\n";
+	std::cout << " -------------------------------\n";
+	std::cout << " |    1    | " << std::fixed << std::setprecision(5) << nn.Calculate({ 1, 0 })[0] << " | " << nn.Calculate({ 1, 1 })[0] << " |\n";
+	std::cout << " -------------------------------\n\n";
+
+	for (auto& b : nn.GetLinks())
+	{
+		for (auto x : b)
+		{
+			x->weight *= 10;
+		}
+	}
+
+	std::cout << "           ---------------------\n";
+	std::cout << "           |    0    |    1    |\n";
+	std::cout << " -------------------------------\n";
+	std::cout << " |    0    | " << std::fixed << std::setprecision(5) << nn.Calculate({ 0, 0 })[0] << " | " << nn.Calculate({ 0, 1 })[0] << " |\n";
+	std::cout << " -------------------------------\n";
+	std::cout << " |    1    | " << std::fixed << std::setprecision(5) << nn.Calculate({ 1, 0 })[0] << " | " << nn.Calculate({ 1, 1 })[0] << " |\n";
+	std::cout << " -------------------------------\n\n";
+
+	nn.Calculate({ 0, 1 });
 	Application* app;
 
-	std::thread windowThread([&]() {});
-
 	double lRate = 0.1;
-	double dropout = 0.25;
+	double dropout = 0;
 
-	bool train = true;
+	bool train = false;
 	bool quit = false;
 
 	sf::Font font;
@@ -145,42 +258,6 @@ int main()
 					});
 				}
 			}
-			else if (cmd == "show")
-			{
-				std::cout << "\n";
-
-				windowThread.detach();
-				windowThread = std::thread([&]()
-				{
-					DrawFunction df({ 500, 300 }, { 200, 200 }, { 4, 4 }, { 0, 1 }, { 0, 1 }, [&](const nn::Vec2<float>& i)->float
-					{
-						return (float)nn.Calculate({ i.x, i.y })[0];
-					});
-
-					sf::RenderWindow window({ 1200, 600 }, "");
-					while (window.isOpen())
-					{
-						sf::Event e;
-						while (window.pollEvent(e))
-						{
-							if (e.type == sf::Event::Closed)
-							{
-								window.close();
-							}
-						}
-
-						window.clear();
-
-						app->Execute([&]()
-						{
-							nn::Draw(window, nn, { 50, 300 }, 100, 80, 10, font, true);
-							df.Draw(window);
-						});
-
-						window.display();
-					}
-				});
-			}
 			else
 			{
 				system(cmd.c_str());
@@ -205,46 +282,43 @@ int main()
 		app->Init();
 	});
 
+	/////////////////////////
+	// Window thread
+	/////////////////////////
+	std::thread windowThread = std::thread([&]()
+	{
+		sf::ContextSettings stgs;
+		stgs.antialiasingLevel = 16;
+
+		sf::RenderWindow window({ 1200, 800 }, "", sf::Style::Close, stgs);
+		while (window.isOpen())
+		{
+			if (quit)
+			{
+				window.close();
+			}
+
+			sf::Event e;
+			while (window.pollEvent(e))
+			{
+				//ui.CheckInput(window, e);
+			}
+
+			window.clear(sf::Color::White);
+
+			//ui.Update(window);
+			//ui.Draw(window);
+
+			app->Execute([&]()
+			{
+				nn::Draw(window, nn, { 100, 400 }, 340, 320, 60);
+			});
+
+			window.display();
+		}
+	});
+
 	trainThread.join();
 	consoleThread.join();
 	windowThread.join();
-
-	/*DrawFunction df({ 500, 300 }, { 200, 200 }, { 4, 4 }, { 0, 1 }, { 0, 1 }, [&](const sf::Vector2f& i)->float
-	{
-	return (float)nn.Calculate({ i.x, i.y })[0];
-	});
-
-	bool draw = true;
-
-	sf::RenderWindow window({ 1200, 600 }, "");
-	while (window.isOpen())
-	{
-	sf::Event e;
-	while (window.pollEvent(e))
-	{
-	if (e.type == sf::Event::Closed)
-	{
-	window.close();
-	}
-	if (e.type == sf::Event::KeyPressed)
-	{
-	if (e.key.code == sf::Keyboard::D)
-	{
-	draw = draw ? false : true;
-	}
-	}
-	}
-
-	window.clear();
-
-	uint index = (rand() % static_cast<int>(3 + 1));
-	nn.Train(input[index], output[index], 0.1, 0);
-	if (draw)
-	{
-	nn::Draw(window, nn, { 50, 300 }, 100, 80, 10, font, true);
-	df.Draw(window);
-	}
-
-	window.display();
-	}*/
 }

@@ -212,7 +212,7 @@ std::vector<double> NeuralNetwork::Calculate(const std::vector<double>& input)
 					value += (l->back.value * l->weight);
 				}
 			}
-
+			m_neurons[x + 1][y].raw = value;
 			m_neurons[x + 1][y].value = m_neurons[x + 1][y].activation.funct(value);
 		}
 	}
@@ -292,7 +292,7 @@ void NeuralNetwork::Train(const std::vector<double>& input, const std::vector<do
 	{
 		for (Link* l : lb)
 		{
-			double delta = l->front.activation.derivate(l->front.value) * l->front.error * lRate * l->back.value;
+			double delta = l->front.activation.derivate(l->front.raw) * l->front.error * lRate * l->back.value;
 
 			l->weight += delta;
 			l->delta += delta;

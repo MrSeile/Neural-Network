@@ -18,6 +18,8 @@ namespace nn
 
 		double value;
 
+		double raw;
+
 		double error;
 
 		const uint x;

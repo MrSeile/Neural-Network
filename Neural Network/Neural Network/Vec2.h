@@ -6,7 +6,17 @@ namespace nn
 	class Vec2
 	{
 	public:
-		T x, y;
+		union
+		{
+			struct
+			{
+				T x, y;
+			};
+			struct
+			{
+				T min, max;
+			};
+		};
 
 		Vec2(T x, T y) : x(x), y(y) {}
 		Vec2() : x(static_cast<T>(0)), y(static_cast<T>(0)) {}
